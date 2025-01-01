@@ -1,0 +1,277 @@
+{% extends 'movies/base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <!-- Hero Section -->
+    <div class="hero-section text-white py-5 mb-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-3 fw-bold mb-3">CineVerse</h1>
+                    <p class="lead fs-4 mb-4">Explore the Magic of Cinema: From Bollywood to Hollywood, Tamil to Telugu, and Everything in Between</p>
+                    <div class="search-box bg-white p-3 rounded-4 shadow">
+                        <form method="get" class="d-flex gap-3">
+                            <input type="text" name="search" 
+                                   class="form-control form-control-lg border-0" 
+                                   placeholder="Search movies by title, director, or genre..." 
+                                   value="{{ search_query }}"
+                                   style="background-color: transparent;">
+                            <button class="btn btn-primary btn-lg px-4" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-4 d-none d-md-block">
+                    <div class="text-end">
+                        <div class="movie-stats text-white">
+                            <p class="mb-2"><i class="fas fa-film me-2"></i>{{ total_movies }} Movies</p>
+                            <p class="mb-2"><i class="fas fa-language me-2"></i>{{ languages|length }} Languages</p>
+                            <p class="mb-0"><i class="fas fa-theater-masks me-2"></i>{{ genres|length }} Genres</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="container mb-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Genre</label>
+                                <select name="genre" class="form-select">
+                                    <option value="">All Genres</option>
+                                    <option value="Action" {% if genre_filter == 'Action' %}selected{% endif %}>Action</option>
+                                    <option value="Adventure" {% if genre_filter == 'Adventure' %}selected{% endif %}>Adventure</option>
+                                    <option value="Animation" {% if genre_filter == 'Animation' %}selected{% endif %}>Animation</option>
+                                    <option value="Biography" {% if genre_filter == 'Biography' %}selected{% endif %}>Biography</option>
+                                    <option value="Comedy" {% if genre_filter == 'Comedy' %}selected{% endif %}>Comedy</option>
+                                    <option value="Crime" {% if genre_filter == 'Crime' %}selected{% endif %}>Crime</option>
+                                    <option value="Drama" {% if genre_filter == 'Drama' %}selected{% endif %}>Drama</option>
+                                    <option value="Fantasy" {% if genre_filter == 'Fantasy' %}selected{% endif %}>Fantasy</option>
+                                    <option value="Historical" {% if genre_filter == 'Historical' %}selected{% endif %}>Historical</option>
+                                    <option value="Horror" {% if genre_filter == 'Horror' %}selected{% endif %}>Horror</option>
+                                    <option value="Musical" {% if genre_filter == 'Musical' %}selected{% endif %}>Musical</option>
+                                    <option value="Romance" {% if genre_filter == 'Romance' %}selected{% endif %}>Romance</option>
+                                    <option value="Superhero" {% if genre_filter == 'Superhero' %}selected{% endif %}>Superhero</option>
+                                    <option value="Thriller" {% if genre_filter == 'Thriller' %}selected{% endif %}>Thriller</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Language</label>
+                                <select name="language" class="form-select">
+                                    <option value="">All Languages</option>
+                                    <option value="English" {% if language_filter == 'English' %}selected{% endif %}>English</option>
+                                    <option value="Hindi" {% if language_filter == 'Hindi' %}selected{% endif %}>Hindi</option>
+                                    <option value="Tamil" {% if language_filter == 'Tamil' %}selected{% endif %}>Tamil</option>
+                                    <option value="Telugu" {% if language_filter == 'Telugu' %}selected{% endif %}>Telugu</option>
+                                    <option value="Malayalam" {% if language_filter == 'Malayalam' %}selected{% endif %}>Malayalam</option>
+                                    <option value="Kannada" {% if language_filter == 'Kannada' %}selected{% endif %}>Kannada</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="container mb-4">
+        <div class="alert alert-info">
+            Found {{ total_movies }} movie{{ total_movies|pluralize }} 
+            {% if genre_filter %}in {{ genre_filter }} genre{% endif %}
+            {% if language_filter %}in {{ language_filter }} language{% endif %}
+            {% if search_query %}matching "{{ search_query }}"{% endif %}
+        </div>
+    </div>
+
+    <!-- Movie Grid -->
+    <div class="container">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for movie in movies %}
+            <div class="col">
+                <div class="card h-100 movie-card">
+                    {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                    {% else %}
+                        <div class="bg-secondary text-white p-5 text-center">
+                            No Poster Available
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ movie.title }}</h5>
+                        <div class="mb-2">
+                            <span class="badge bg-primary">{{ movie.genre }}</span>
+                            <span class="badge bg-secondary">{{ movie.language }}</span>
+                        </div>
+                        <p class="card-text">{{ movie.description|truncatewords:30 }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'movie_detail' movie.id %}" class="btn btn-primary w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    No movies found matching your criteria.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if movies.paginator.num_pages > 1 %}
+    <div class="container mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if movies.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ movies.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for num in movies.paginator.page_range %}
+                    {% if num == movies.number %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > movies.number|add:'-3' and num < movies.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if movies.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ movies.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ movies.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}{% if language_filter %}&language={{ language_filter }}{% endif %}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Custom CSS -->
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+                    url('https://source.unsplash.com/1600x600/?cinema,movie-theater') no-repeat center center;
+        background-size: cover;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(76, 0, 255, 0.15), rgba(255, 0, 128, 0.15));
+    }
+
+    .hero-section .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .search-box {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .search-box input::placeholder {
+        color: #6c757d;
+        font-size: 1rem;
+    }
+
+    .search-box .btn-primary {
+        background: linear-gradient(45deg, #4C00FF, #FF0080);
+        border: none;
+        transition: transform 0.2s;
+    }
+
+    .search-box .btn-primary:hover {
+        transform: scale(1.05);
+    }
+
+    .movie-stats {
+        font-size: 1.1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .movie-stats i {
+        color: #FF0080;
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            text-align: center;
+        }
+        
+        .search-box {
+            margin: 0 auto;
+            max-width: 100%;
+        }
+    }
+
+    .movie-card {
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .movie-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-img-top {
+        height: 400px;
+        object-fit: cover;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    .bg-gradient {
+        background: linear-gradient(45deg, rgba(76, 0, 255, 0.2), rgba(255, 0, 128, 0.2));
+    }
+
+    .stats-cards {
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+    }
+</style>
+{% endblock %} 
